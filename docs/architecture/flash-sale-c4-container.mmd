@@ -1,0 +1,38 @@
+graph TB
+    subgraph Client_Layer [Client Layer]
+        ReactApp["React SPA (Frontend)"]
+    end
+
+    subgraph API_Layer [Ingestion Layer]
+        Gateway["API Gateway (NestJS)"]
+    end
+
+    subgraph Storage_Layer [Storage & Messaging]
+        Redis[("Redis (Inventory, Queue, Pub/Sub)")]
+        DB[("PostgreSQL (Source of Truth)")]
+    end
+
+    subgraph Processing_Layer [Background Processing]
+        Worker["Order Worker (NestJS)"]
+        Notify["Notification Service (SSE)"]
+    end
+
+    %% Flow: Purchase
+    ReactApp -- "1. POST /buy (HTTP)" --> Gateway
+    Gateway -- "2. Execute Lua Script" --> Redis
+    Gateway -- "3. Return 202 Accepted" --> ReactApp
+
+    %% Flow: Persistence
+    Worker -- "4. Pull Job (BullMQ)" --> Redis
+    Worker -- "5. Batch Insert" --> DB
+    Worker -- "6. Publish 'Processed' Event" --> Redis
+
+    %% Flow: Notifications
+    ReactApp -- "7. Listen for Updates (SSE)" --> Notify
+    Notify -- "8. Subscribe to Events" --> Redis
+    Notify -- "9. Push Update to Client" --> ReactApp
+
+    style Redis fill:#f96,stroke:#333
+    style DB fill:#36f,stroke:#fff,color:#fff
+    style Gateway fill:#e11,stroke:#333,color:#fff
+    style Worker fill:#e11,stroke:#333,color:#fff

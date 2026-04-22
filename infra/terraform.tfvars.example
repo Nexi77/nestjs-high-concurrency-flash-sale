@@ -1,0 +1,6 @@
+# Those variables should be set in local terraform.tfvars file so you can run all the infrastructure easily
+
+postgres_password = "change_me"
+pgadmin_password  = "change_me"
+redis_password    = "change_me"
+pgadmin_email     = "admin@example.com"
