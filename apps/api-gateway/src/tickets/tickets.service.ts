@@ -1,9 +1,16 @@
+import { OrderJobData } from '@lib/common';
+import { InjectQueue } from '@nestjs/bullmq';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { RedisService } from '@redis/redis';
+import { Queue } from 'bullmq';
 
 @Injectable()
 export class TicketsService {
-  constructor(private readonly redisService: RedisService) {}
+  constructor(
+    private readonly redisService: RedisService,
+    @InjectQueue('order-queue')
+    private readonly orderQueue: Queue<OrderJobData>,
+  ) {}
 
   async initTickets(ticketId: string, count: number) {
     const client = this.redisService.getClient();
@@ -19,13 +26,22 @@ export class TicketsService {
   async buyTicket(ticketId: string, userId: string) {
     const result = await this.redisService.tryBuyTicket(ticketId, userId);
 
-    switch (result) {
-      case -1:
-        throw new BadRequestException('User has already bought a ticket');
-      case 0:
-        throw new BadRequestException('Tickets are sold out');
-      default:
-        return { message: 'Ticket purchased successfully', userId, ticketId };
-    }
+    if (result === -1)
+      throw new BadRequestException('User has already bought a ticket');
+    if (result === 0) throw new BadRequestException('Tickets are sold out');
+
+    await this.orderQueue.add(
+      'create_order',
+      { ticketId, userId },
+      {
+        removeOnComplete: true,
+        attempts: 3,
+      },
+    );
+
+    return {
+      status: 'pending',
+      message: 'Ticket reserved. Order is being processed.',
+    };
   }
 }
