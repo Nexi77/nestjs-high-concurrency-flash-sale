@@ -1,25 +1,44 @@
-import { Processor, WorkerHost } from '@nestjs/bullmq';
-import { Job } from 'bullmq';
+import { InjectQueue, Processor, WorkerHost } from '@nestjs/bullmq';
+import { Job, Queue } from 'bullmq';
 import { Logger } from '@nestjs/common';
-import { OrderJobData } from '@lib/common';
+import { OrderJobData, OrderNotificationJobData } from '@lib/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { OrderEntity } from '@db/database';
+import { Repository } from 'typeorm';
 
 @Processor('order-queue')
 export class OrderProcessor extends WorkerHost {
   private readonly logger = new Logger(OrderProcessor.name);
+
+  constructor(
+    @InjectRepository(OrderEntity)
+    private readonly orderRepository: Repository<OrderEntity>,
+    @InjectQueue('notification-queue')
+    private readonly notificationQueue: Queue<OrderNotificationJobData>,
+  ) {
+    super();
+  }
 
   async process(job: Job<OrderJobData, any, string>) {
     this.logger.log(`Processing order for job ${job.id}...`);
 
     const { ticketId, userId } = job.data;
 
-    // TODO: PostgreSQL save logic will go in here
-    this.logger.debug(`[ORDER CREATED] Ticket: ${ticketId}, User: ${userId}`);
+    const newOrder = this.orderRepository.create({
+      ticketId,
+      userId,
+      status: 'confirmed',
+    });
 
-    // Simulation of processing time, e.g., generating email confirmation
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await this.orderRepository.save(newOrder);
 
-    this.logger.log(`Order ${job.id} processed successfully!`);
+    await this.notificationQueue.add('send_notification', {
+      ticketId,
+      userId,
+      orderId: newOrder.id,
+      timestamp: newOrder.createdAt.toISOString(),
+    });
 
-    return { success: true };
+    return { orderId: newOrder.id };
   }
 }

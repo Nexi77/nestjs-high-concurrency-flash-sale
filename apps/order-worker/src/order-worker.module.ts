@@ -2,6 +2,7 @@ import { BullModule } from '@nestjs/bullmq';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { OrderProcessor } from './order-worker.processor';
+import { DatabaseModule } from '@db/database';
 
 @Module({
   imports: [
@@ -20,6 +21,10 @@ import { OrderProcessor } from './order-worker.processor';
     BullModule.registerQueue({
       name: 'order-queue',
     }),
+    BullModule.registerQueue({
+      name: 'notification-queue',
+    }),
+    DatabaseModule,
   ],
   controllers: [],
   providers: [OrderProcessor],
