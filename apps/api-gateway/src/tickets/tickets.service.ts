@@ -35,7 +35,12 @@ export class TicketsService {
       { ticketId, userId },
       {
         removeOnComplete: true,
+        removeOnFail: false,
         attempts: 3,
+        backoff: {
+          type: 'exponential',
+          delay: 1000,
+        },
       },
     );
 

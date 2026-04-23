@@ -1,7 +1,7 @@
 
 # ADR-002: Atomic Concurrency Control Strategy
 
-**Status:** Proposed
+**Status:** Accepted
 
 ---
 

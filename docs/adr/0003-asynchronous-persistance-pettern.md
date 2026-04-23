@@ -1,6 +1,6 @@
 # ADR-003: Asynchronous Persistence Pattern (Write-Behind)
 
-**Status:** Proposed
+**Status:** Accepted
 
 ---
 

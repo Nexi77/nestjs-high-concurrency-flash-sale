@@ -1,6 +1,6 @@
 # ADR-006: Data Access Layer and ORM Selection
 
-**Status:** Proposed
+**Status:** Accepted
 
 ---
 

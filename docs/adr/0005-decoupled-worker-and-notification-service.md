@@ -1,6 +1,6 @@
 # ADR-005: Decoupled Worker and Notification Service
 
-**Status:** Proposed
+**Status:** Accepted
 
 ---
 
@@ -8,21 +8,21 @@
 
 To ensure system resilience and high availability, we need to separate:
 
-- Order ingestion (API)  
-- Order persistence (Worker)  
-- User notification (SSE)  
+- Order ingestion (API)
+- Order persistence (Worker)
+- User notification (SSE)
 
-Coupling these responsibilities in a single service risks resource contention (e.g., connection exhaustion) and reduces fault isolation.
+Coupling these responsibilities in a single service risks resource contention and reduces fault isolation.
 
 ---
 
 ## Decision
 
-- Workers will connect directly to PostgreSQL to avoid API overhead  
+- Workers will connect directly to PostgreSQL to avoid API overhead
 
-- A separate Notification Service will handle **:contentReference[oaicite:0]{index=0} (SSE)** connections to prevent connection exhaustion on the main API  
+- A separate Notification Service will handle **Server-Sent Events (SSE)** connections
 
-- **:contentReference[oaicite:1]{index=1}** will be used as the communication bridge between Workers and the Notification Service  
+- **Redis Pub/Sub** will be used as the communication bridge between Workers and the Notification Service
 
 ---
 
@@ -32,15 +32,12 @@ Coupling these responsibilities in a single service risks resource contention (e
 
 #### Reliability
 
-- The system can process the queue even if the public API is down  
-- Improved fault isolation between components  
+- The system can process the queue even if the public API is down
+- Improved fault isolation
 
 #### Scalability
 
-- Independent scaling of:
-  - API (ingestion)  
-  - Workers (processing)  
-  - Notification Service (connections)  
+- Independent scaling of services
 
 ---
 
@@ -48,21 +45,16 @@ Coupling these responsibilities in a single service risks resource contention (e
 
 #### Complexity
 
-- Introduction of three distinct backend services:
-  - API  
-  - Worker  
-  - Notification Service  
-
-- Increased operational overhead:
-  - Deployment  
-  - Monitoring  
-  - Debugging distributed flows  
+- Three backend services:
+  - API
+  - Worker
+  - Notification Service
 
 ---
 
 ### ⚖️ Trade-offs
 
-- Favoring **resilience and scalability** over system simplicity  
+- Favoring **resilience and scalability** over simplicity
 
 ---
 
@@ -70,13 +62,15 @@ Coupling these responsibilities in a single service risks resource contention (e
 
 #### Message Delivery
 
-- Use retry mechanisms and acknowledgements where applicable  
+- Retry mechanisms and acknowledgements
 
 #### Observability
 
-- Centralized logging and tracing across services  
-- Monitor Pub/Sub lag and delivery failures  
+- Centralized logging and tracing
 
-#### Connection Management
+---
 
-- Enforce limits and timeouts for SSE connections
+## References
+
+- https://redis.io/docs/interact/pubsub/
+- https://microservices.io/patterns/data/pub-sub.html

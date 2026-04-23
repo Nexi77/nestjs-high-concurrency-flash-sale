@@ -24,9 +24,13 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e:api": "jest --config ./apps/api-gateway/test/jest-e2e.json"
+    "test:e2e:api": "jest --config ./apps/api-gateway/test/jest-e2e.json",
+    "test:load": "esbuild load-tests/ticket-burst-test.ts --bundle --outfile=load-tests/dist/test.js --platform=node --external:k6 --external:k6/http && k6 run load-tests/dist/test.js"
   },
   "dependencies": {
+    "@bull-board/api": "^7.0.0",
+    "@bull-board/express": "^7.0.0",
+    "@bull-board/nestjs": "^7.0.0",
     "@nestjs/bullmq": "^11.0.4",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.4",
@@ -50,8 +54,10 @@
     "@nestjs/testing": "^11.0.1",
     "@types/express": "^5.0.0",
     "@types/jest": "^30.0.0",
+    "@types/k6": "^1.7.0",
     "@types/node": "^22.10.7",
     "@types/supertest": "^6.0.2",
+    "esbuild": "^0.28.0",
     "eslint": "^9.18.0",
     "eslint-config-prettier": "^10.0.1",
     "eslint-plugin-prettier": "^5.2.2",

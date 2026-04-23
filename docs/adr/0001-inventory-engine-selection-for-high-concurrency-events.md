@@ -1,6 +1,6 @@
 # ADR-001: Inventory Engine Selection for High-Concurrency Events
 
-**Status:** Proposed
+**Status:** Accepted
 
 ---
 
