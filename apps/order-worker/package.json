@@ -1,0 +1,11 @@
+{
+  "name": "@flash-sale/order-worker",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "build": "sh -c 'cd ../.. && nest build order-worker'",
+    "dev": "sh -c 'cd ../.. && nest start order-worker --watch'",
+    "lint": "sh -c 'cd ../.. && eslint \"apps/order-worker/src/**/*.ts\" \"apps/order-worker/test/**/*.ts\" --fix'",
+    "test": "sh -c 'cd ../.. && jest --config apps/order-worker/test/jest-e2e.json'"
+  }
+}

@@ -4,28 +4,20 @@
   "description": "",
   "author": "",
   "private": true,
+  "packageManager": "npm@11.6.2",
+  "workspaces": [
+    "apps/*",
+    "libs/*"
+  ],
   "license": "UNLICENSED",
   "scripts": {
-    "build": "nest build",
-    "build:api": "nest build api-gateway",
-    "build:worker": "nest build order-worker",
-    "build:notify": "nest build notification-service",
+    "build": "turbo run build",
     "format": "prettier --write \"apps/**/*.ts\" \"libs/**/*.ts\"",
-    "start": "nest start",
-    "start:dev": "nest start api-gateway --watch",
-    "start:dev:worker": "nest start order-worker --watch",
-    "start:dev:notify": "nest start notification-service --watch",
-    "start:debug": "nest start --debug --watch",
-    "start:prod:api": "node dist/apps/api-gateway/main",
-    "start:prod:worker": "node dist/apps/order-worker/main",
-    "start:prod:notify": "node dist/apps/notification-service/main",
-    "lint": "eslint \"{apps,libs,test}/**/*.ts\" --fix",
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "test:cov": "jest --coverage",
-    "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e:api": "jest --config ./apps/api-gateway/test/jest-e2e.json",
-    "test:load": "esbuild load-tests/ticket-burst-test.ts --bundle --outfile=load-tests/dist/test.js --platform=node --external:k6 --external:k6/http && k6 run load-tests/dist/test.js"
+    "dev": "turbo run dev --parallel --filter=@flash-sale/api-gateway --filter=@flash-sale/order-worker --filter=@flash-sale/notification-service",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "test:load": "esbuild load-tests/ticket-burst-test.ts --bundle --outfile=load-tests/dist/test.js --platform=node --external:k6 --external:k6/http && k6 run load-tests/dist/test.js",
+    "turbo": "turbo"
   },
   "dependencies": {
     "@bull-board/api": "^7.0.0",
@@ -70,6 +62,7 @@
     "ts-loader": "^9.5.2",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
+    "turbo": "^2.9.6",
     "typescript": "^5.7.3",
     "typescript-eslint": "^8.20.0"
   },

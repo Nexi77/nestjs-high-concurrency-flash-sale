@@ -1,4 +1,5 @@
-import { IsInt, IsNotEmpty, IsString, IsUUID, Min } from 'class-validator';
+import { Transform } from 'class-transformer';
+import { IsEmail, IsInt, IsNotEmpty, IsUUID, Min } from 'class-validator';
 
 export class InitTicketsDto {
   @IsUUID()
@@ -15,7 +16,10 @@ export class BuyTicketDto {
   @IsNotEmpty()
   ticketId: string;
 
-  @IsString()
+  @Transform(({ value }) =>
+    typeof value === 'string' ? value.trim().toLowerCase() : value,
+  )
+  @IsEmail()
   @IsNotEmpty()
-  userId: string;
+  customerEmail: string;
 }

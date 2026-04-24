@@ -3,9 +3,11 @@ import {
   Column,
   PrimaryGeneratedColumn,
   CreateDateColumn,
+  Index,
 } from 'typeorm';
 
 @Entity('orders')
+@Index(['ticketId', 'customerEmail'], { unique: true })
 export class OrderEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -14,7 +16,7 @@ export class OrderEntity {
   ticketId: string;
 
   @Column()
-  userId: string;
+  customerEmail: string;
 
   @Column({ default: 'confirmed' })
   status: string;

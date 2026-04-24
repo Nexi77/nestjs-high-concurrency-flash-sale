@@ -23,16 +23,21 @@ export class TicketsService {
     return { message: `Initialized ${count} tickets for ${ticketId}` };
   }
 
-  async buyTicket(ticketId: string, userId: string) {
-    const result = await this.redisService.tryBuyTicket(ticketId, userId);
+  async buyTicket(ticketId: string, customerEmail: string) {
+    const result = await this.redisService.tryBuyTicket(
+      ticketId,
+      customerEmail,
+    );
 
     if (result === -1)
-      throw new BadRequestException('User has already bought a ticket');
+      throw new BadRequestException(
+        'Customer has already reserved a ticket with this email',
+      );
     if (result === 0) throw new BadRequestException('Tickets are sold out');
 
     await this.orderQueue.add(
       'create_order',
-      { ticketId, userId },
+      { ticketId, customerEmail },
       {
         removeOnComplete: true,
         removeOnFail: false,

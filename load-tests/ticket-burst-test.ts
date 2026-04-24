@@ -18,7 +18,7 @@ export default function () {
 
   const payload = JSON.stringify({
     ticketId: '96b3eb06-d57d-4df7-963f-eb4e17d2786b',
-    userId: `user_${__VU}_${__ITER}`,
+    customerEmail: `user_${__VU}_${__ITER}@example.com`,
   });
 
   const params = {

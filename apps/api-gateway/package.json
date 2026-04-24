@@ -1,0 +1,11 @@
+{
+  "name": "@flash-sale/api-gateway",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "build": "sh -c 'cd ../.. && nest build api-gateway'",
+    "dev": "sh -c 'cd ../.. && nest start api-gateway --watch'",
+    "lint": "sh -c 'cd ../.. && eslint \"apps/api-gateway/src/**/*.ts\" \"apps/api-gateway/test/**/*.ts\" --fix'",
+    "test": "sh -c 'cd ../.. && jest --config apps/api-gateway/test/jest-e2e.json'"
+  }
+}

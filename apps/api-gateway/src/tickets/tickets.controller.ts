@@ -18,7 +18,7 @@ export class TicketsController {
   async buyTicket(@Body() buyTicketDto: BuyTicketDto) {
     return this.ticketsService.buyTicket(
       buyTicketDto.ticketId,
-      buyTicketDto.userId,
+      buyTicketDto.customerEmail,
     );
   }
 }

@@ -1,11 +1,11 @@
 export interface OrderJobData {
   ticketId: string;
-  userId: string;
+  customerEmail: string;
 }
 
 export interface OrderNotificationJobData {
   ticketId: string;
-  userId: string;
+  customerEmail: string;
   orderId: string;
   timestamp: string;
 }

@@ -27,22 +27,22 @@ export class OrderProcessor extends WorkerHost {
   async process(job: Job<OrderJobData, any, string>) {
     this.logger.log(`Processing order for job ${job.id}...`);
 
-    const { ticketId, userId } = job.data;
+    const { ticketId, customerEmail } = job.data;
 
     const existingOrder = await this.orderRepository.findOne({
-      where: { ticketId, userId },
+      where: { ticketId, customerEmail },
     });
 
     if (existingOrder) {
       this.logger.warn(
-        `Order for user ${userId} and ticket ${ticketId} already exists. Skipping.`,
+        `Order for ${customerEmail} and ticket ${ticketId} already exists. Skipping.`,
       );
       return { orderId: existingOrder.id, status: 'already_exists' };
     }
 
     const newOrder = this.orderRepository.create({
       ticketId,
-      userId,
+      customerEmail,
       status: 'confirmed',
     });
 
@@ -55,7 +55,7 @@ export class OrderProcessor extends WorkerHost {
 
     await this.notificationQueue.add('send_notification', {
       ticketId,
-      userId,
+      customerEmail,
       orderId: newOrder.id,
       timestamp: newOrder.createdAt.toISOString(),
     });

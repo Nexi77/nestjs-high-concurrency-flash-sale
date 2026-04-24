@@ -11,6 +11,19 @@ A high-concurrency PoC for handling 10k+ RPS during ticket sales.
 - **Order Worker:** Background processing for PostgreSQL persistence.
 - **Notification Service:** Real-time updates via SSE.
 
+## Monorepo Tooling
+
+- **NestJS Workspace:** service structure, backend build targets, shared backend libraries
+- **Turborepo:** cross-workspace orchestration for `build`, `dev`, `lint`, and `test`
+
+### Useful Commands
+
+- `npm run build` runs workspace builds through Turbo
+- `npm run dev` starts the backend services in parallel through Turbo
+- `npm run dev --workspace=@flash-sale/api-gateway` starts only the API Gateway
+- `npm run dev --workspace=@flash-sale/order-worker` starts only the Order Worker
+- `npm run dev --workspace=@flash-sale/notification-service` starts only the Notification Service
+
 ## 📄 Documentation
 
 - [Architecture Decisions (ADR)](./docs/adr/)
@@ -19,6 +32,12 @@ A high-concurrency PoC for handling 10k+ RPS during ticket sales.
 ## 🛠 Tech Stack (Confirmed)
 
 - NestJS, ioredis, TypeORM, PostgreSQL, BullMQ.
+
+## Checkout Contract
+
+- Guest checkout uses `customerEmail` as the reservation identity.
+- The API normalizes the email and enforces one reservation per event per email.
+- This keeps the current PoC auth-free while preserving a realistic frontend contract for Next.js.
 
 # 🚀 Performance Report
 

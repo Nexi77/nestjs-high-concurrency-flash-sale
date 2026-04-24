@@ -6,16 +6,16 @@ type RedisWithCommands = Redis & {
   buyTicket(
     stockKey: string,
     buyersKey: string,
-    userId: string,
+    customerEmail: string,
   ): Promise<number>;
 };
 
 const BUY_TICKET_LUA = `
   local stockKey = KEYS[1]
   local buyersKey = KEYS[2]
-  local userId = ARGV[1]
+  local customerEmail = ARGV[1]
 
-  if redis.call("SISMEMBER", buyersKey, userId) == 1 then
+  if redis.call("SISMEMBER", buyersKey, customerEmail) == 1 then
     return -1
   end
 
@@ -25,7 +25,7 @@ const BUY_TICKET_LUA = `
   end
 
   redis.call("DECR", stockKey)
-  redis.call("SADD", buyersKey, userId)
+  redis.call("SADD", buyersKey, customerEmail)
   return 1
 `;
 
@@ -58,11 +58,15 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     return this.client;
   }
 
-  async tryBuyTicket(ticketId: string, userId: string): Promise<number> {
+  async tryBuyTicket(ticketId: string, customerEmail: string): Promise<number> {
     const stockKey = `stock:${ticketId}`;
     const buyersKey = `buyers:${ticketId}`;
 
-    const result = await this.client.buyTicket(stockKey, buyersKey, userId);
+    const result = await this.client.buyTicket(
+      stockKey,
+      buyersKey,
+      customerEmail,
+    );
     return result;
   }
 }
