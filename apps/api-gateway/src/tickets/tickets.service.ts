@@ -35,19 +35,24 @@ export class TicketsService {
       );
     if (result === 0) throw new BadRequestException('Tickets are sold out');
 
-    await this.orderQueue.add(
-      'create_order',
-      { ticketId, customerEmail },
-      {
-        removeOnComplete: true,
-        removeOnFail: false,
-        attempts: 3,
-        backoff: {
-          type: 'exponential',
-          delay: 1000,
+    try {
+      await this.orderQueue.add(
+        'create_order',
+        { ticketId, customerEmail },
+        {
+          removeOnComplete: true,
+          removeOnFail: false,
+          attempts: 3,
+          backoff: {
+            type: 'exponential',
+            delay: 1000,
+          },
         },
-      },
-    );
+      );
+    } catch (error) {
+      await this.redisService.releaseTicketReservation(ticketId, customerEmail);
+      throw error;
+    }
 
     return {
       status: 'pending',

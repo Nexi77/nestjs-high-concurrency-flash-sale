@@ -8,6 +8,11 @@ type RedisWithCommands = Redis & {
     buyersKey: string,
     customerEmail: string,
   ): Promise<number>;
+  releaseTicketReservation(
+    stockKey: string,
+    buyersKey: string,
+    customerEmail: string,
+  ): Promise<number>;
 };
 
 const BUY_TICKET_LUA = `
@@ -29,6 +34,19 @@ const BUY_TICKET_LUA = `
   return 1
 `;
 
+const RELEASE_TICKET_RESERVATION_LUA = `
+  local stockKey = KEYS[1]
+  local buyersKey = KEYS[2]
+  local customerEmail = ARGV[1]
+
+  if redis.call("SREM", buyersKey, customerEmail) == 1 then
+    redis.call("INCR", stockKey)
+    return 1
+  end
+
+  return 0
+`;
+
 @Injectable()
 export class RedisService implements OnModuleInit, OnModuleDestroy {
   private client!: RedisWithCommands;
@@ -40,11 +58,21 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
       host: this.configService.get('REDIS_HOST', 'localhost'),
       port: this.configService.get('REDIS_PORT', 6379),
       password: this.configService.get('REDIS_PASSWORD'),
+      connectTimeout: this.configService.get('REDIS_CONNECT_TIMEOUT_MS', 10000),
+      maxRetriesPerRequest: this.configService.get(
+        'REDIS_MAX_RETRIES_PER_REQUEST',
+        20,
+      ),
     }) as RedisWithCommands;
 
     this.client.defineCommand('buyTicket', {
       numberOfKeys: 2,
       lua: BUY_TICKET_LUA,
+    });
+
+    this.client.defineCommand('releaseTicketReservation', {
+      numberOfKeys: 2,
+      lua: RELEASE_TICKET_RESERVATION_LUA,
     });
   }
 
@@ -68,5 +96,19 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
       customerEmail,
     );
     return result;
+  }
+
+  async releaseTicketReservation(
+    ticketId: string,
+    customerEmail: string,
+  ): Promise<void> {
+    const stockKey = `stock:${ticketId}`;
+    const buyersKey = `buyers:${ticketId}`;
+
+    await this.client.releaseTicketReservation(
+      stockKey,
+      buyersKey,
+      customerEmail,
+    );
   }
 }

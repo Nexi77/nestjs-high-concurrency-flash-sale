@@ -46,12 +46,32 @@ export class OrderProcessor extends WorkerHost {
       status: 'confirmed',
     });
 
-    await this.orderRepository.manager.transaction(
-      async (transactionalEntityManager) => {
-        await transactionalEntityManager.save(newOrder);
-      },
-      // closed in a transacftion for future use, like substracting money from user account, etc.
-    );
+    try {
+      await this.orderRepository.manager.transaction(
+        async (transactionalEntityManager) => {
+          await transactionalEntityManager.save(newOrder);
+        },
+        // closed in a transacftion for future use, like substracting money from user account, etc.
+      );
+    } catch (error) {
+      if (this.isUniqueViolation(error)) {
+        const persistedOrder = await this.orderRepository.findOne({
+          where: { ticketId, customerEmail },
+        });
+
+        if (persistedOrder) {
+          this.logger.warn(
+            `Duplicate order write detected for ${customerEmail} and ticket ${ticketId}. Returning persisted order.`,
+          );
+          return {
+            orderId: persistedOrder.id,
+            status: 'already_exists',
+          };
+        }
+      }
+
+      throw error;
+    }
 
     await this.notificationQueue.add('send_notification', {
       ticketId,
@@ -70,5 +90,14 @@ export class OrderProcessor extends WorkerHost {
     );
 
     // here we can use webhook to send notification on slack for example to service admin about failed job after all retry attempts are exhausted
+  }
+
+  private isUniqueViolation(error: unknown): error is { code: string } {
+    return (
+      typeof error === 'object' &&
+      error !== null &&
+      'code' in error &&
+      error.code === '23505'
+    );
   }
 }
