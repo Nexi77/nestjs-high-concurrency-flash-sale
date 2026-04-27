@@ -23,6 +23,7 @@ A high-concurrency PoC for handling 10k+ RPS during ticket sales.
 - `npm run dev --workspace=@flash-sale/api-gateway` starts only the API Gateway
 - `npm run dev --workspace=@flash-sale/order-worker` starts only the Order Worker
 - `npm run dev --workspace=@flash-sale/notification-service` starts only the Notification Service
+- `npm run dev --workspace=@flash-sale/web` starts only the Next.js frontend
 - `npm run test:integration:redis` starts a temporary Redis container, runs the Redis integration suite, and removes the container after the test
 - `npm run test:integration:postgres` starts a temporary Postgres container, runs the worker persistence integration suite, and removes the container after the test
 - `npm run test:integration` runs all infrastructure-backed integration suites

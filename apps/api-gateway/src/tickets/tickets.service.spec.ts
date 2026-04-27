@@ -43,17 +43,21 @@ describe('TicketsService', () => {
     );
     expect(orderQueue.add).toHaveBeenCalledWith(
       'create_order',
-      {
+      expect.objectContaining({
+        orderId: expect.any(String),
         ticketId: 'ticket-1',
         customerEmail: 'customer@example.com',
-      },
+      }),
       expect.objectContaining({
         removeOnComplete: true,
         removeOnFail: false,
         attempts: 3,
       }),
     );
+    const [[, queuedJob]] = orderQueue.add.mock.calls;
+
     expect(result).toEqual({
+      orderId: queuedJob.orderId,
       status: 'pending',
       message: 'Ticket reserved. Order is being processed.',
     });

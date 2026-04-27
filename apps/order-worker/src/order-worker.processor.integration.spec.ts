@@ -50,6 +50,7 @@ describe('OrderProcessor integration', () => {
     const result = await processor.process({
       id: 'job-1',
       data: {
+        orderId: randomUUID(),
         ticketId: randomUUID(),
         customerEmail: 'customer@example.com',
       },
@@ -71,12 +72,12 @@ describe('OrderProcessor integration', () => {
 
     await processor.process({
       id: 'job-2',
-      data: { ticketId, customerEmail },
+      data: { orderId: randomUUID(), ticketId, customerEmail },
     } as never);
 
     const duplicateResult = await processor.process({
       id: 'job-3',
-      data: { ticketId, customerEmail },
+      data: { orderId: randomUUID(), ticketId, customerEmail },
     } as never);
 
     const orders = await orderRepository.findBy({ ticketId, customerEmail });
@@ -97,11 +98,11 @@ describe('OrderProcessor integration', () => {
     const results = await Promise.allSettled([
       processor.process({
         id: 'job-4',
-        data: { ticketId, customerEmail },
+        data: { orderId: randomUUID(), ticketId, customerEmail },
       } as never),
       processor.process({
         id: 'job-5',
-        data: { ticketId, customerEmail },
+        data: { orderId: randomUUID(), ticketId, customerEmail },
       } as never),
     ]);
 

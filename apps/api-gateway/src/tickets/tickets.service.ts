@@ -1,8 +1,9 @@
-import { OrderJobData } from '@lib/common';
+import { BuyTicketResponse, OrderJobData } from '@lib/common';
 import { InjectQueue } from '@nestjs/bullmq';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { RedisService } from '@redis/redis';
 import { Queue } from 'bullmq';
+import { randomUUID } from 'node:crypto';
 
 @Injectable()
 export class TicketsService {
@@ -23,11 +24,15 @@ export class TicketsService {
     return { message: `Initialized ${count} tickets for ${ticketId}` };
   }
 
-  async buyTicket(ticketId: string, customerEmail: string) {
+  async buyTicket(
+    ticketId: string,
+    customerEmail: string,
+  ): Promise<BuyTicketResponse> {
     const result = await this.redisService.tryBuyTicket(
       ticketId,
       customerEmail,
     );
+    const orderId = randomUUID();
 
     if (result === -1)
       throw new BadRequestException(
@@ -38,7 +43,7 @@ export class TicketsService {
     try {
       await this.orderQueue.add(
         'create_order',
-        { ticketId, customerEmail },
+        { orderId, ticketId, customerEmail },
         {
           removeOnComplete: true,
           removeOnFail: false,
@@ -55,6 +60,7 @@ export class TicketsService {
     }
 
     return {
+      orderId,
       status: 'pending',
       message: 'Ticket reserved. Order is being processed.',
     };

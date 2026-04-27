@@ -50,6 +50,7 @@ describe('OrderProcessor', () => {
     const result = await processor.process({
       id: 'job-1',
       data: {
+        orderId: 'order-1',
         ticketId: 'ticket-1',
         customerEmail: 'customer@example.com',
       },
@@ -92,12 +93,14 @@ describe('OrderProcessor', () => {
     const result = await processor.process({
       id: 'job-2',
       data: {
+        orderId: 'order-2',
         ticketId: 'ticket-1',
         customerEmail: 'customer@example.com',
       },
     } as never);
 
     expect(orderRepository.create).toHaveBeenCalledWith({
+      id: 'order-2',
       ticketId: 'ticket-1',
       customerEmail: 'customer@example.com',
       status: 'confirmed',
@@ -131,6 +134,7 @@ describe('OrderProcessor', () => {
     const result = await processor.process({
       id: 'job-3',
       data: {
+        orderId: 'order-999',
         ticketId: 'ticket-1',
         customerEmail: 'customer@example.com',
       },

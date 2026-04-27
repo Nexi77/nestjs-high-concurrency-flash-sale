@@ -27,7 +27,7 @@ export class OrderProcessor extends WorkerHost {
   async process(job: Job<OrderJobData, any, string>) {
     this.logger.log(`Processing order for job ${job.id}...`);
 
-    const { ticketId, customerEmail } = job.data;
+    const { orderId, ticketId, customerEmail } = job.data;
 
     const existingOrder = await this.orderRepository.findOne({
       where: { ticketId, customerEmail },
@@ -41,6 +41,7 @@ export class OrderProcessor extends WorkerHost {
     }
 
     const newOrder = this.orderRepository.create({
+      id: orderId,
       ticketId,
       customerEmail,
       status: 'confirmed',

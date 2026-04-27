@@ -1,7 +1,7 @@
 import {
   Entity,
   Column,
-  PrimaryGeneratedColumn,
+  PrimaryColumn,
   CreateDateColumn,
   Index,
 } from 'typeorm';
@@ -9,7 +9,7 @@ import {
 @Entity('orders')
 @Index(['ticketId', 'customerEmail'], { unique: true })
 export class OrderEntity {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryColumn('uuid')
   id: string;
 
   @Column()
