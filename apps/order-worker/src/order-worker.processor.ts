@@ -10,7 +10,7 @@ import { OrderJobData, OrderNotificationJobData } from '@lib/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { OrderEntity } from '@db/database';
 import { Repository } from 'typeorm';
-import { OrderStatusService } from '@redis/redis';
+import { OrderEventsBusService, OrderStatusService } from '@redis/redis';
 
 @Processor('order-queue')
 export class OrderProcessor extends WorkerHost {
@@ -22,6 +22,7 @@ export class OrderProcessor extends WorkerHost {
     @InjectQueue('notification-queue')
     private readonly notificationQueue: Queue<OrderNotificationJobData>,
     private readonly orderStatusService: OrderStatusService,
+    private readonly orderEventsBusService: OrderEventsBusService,
   ) {
     super();
   }
@@ -64,6 +65,10 @@ export class OrderProcessor extends WorkerHost {
 
         if (persistedOrder) {
           await this.orderStatusService.clearPending(persistedOrder.id);
+          await this.orderEventsBusService.publishStatusUpdated({
+            orderId: persistedOrder.id,
+            status: 'completed',
+          });
           this.logger.warn(
             `Duplicate order write detected for ${customerEmail} and ticket ${ticketId}. Returning persisted order.`,
           );
@@ -78,6 +83,10 @@ export class OrderProcessor extends WorkerHost {
     }
 
     await this.orderStatusService.clearPending(newOrder.id);
+    await this.orderEventsBusService.publishStatusUpdated({
+      orderId: newOrder.id,
+      status: 'completed',
+    });
 
     await this.notificationQueue.add('send_notification', {
       ticketId,

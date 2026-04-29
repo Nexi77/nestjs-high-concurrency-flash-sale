@@ -5,7 +5,7 @@
   "scripts": {
     "build": "sh -c 'cd ../.. && nest build notification-service'",
     "dev": "sh -c 'cd ../.. && nest start notification-service --watch'",
-    "lint": "sh -c 'cd ../.. && eslint \"apps/notification-service/src/**/*.ts\" \"apps/notification-service/test/**/*.ts\" --fix'",
+    "lint": "sh -c 'cd ../.. && eslint --no-error-on-unmatched-pattern \"apps/notification-service/src/**/*.ts\" \"apps/notification-service/test/**/*.ts\" --fix'",
     "test": "sh -c 'cd ../.. && jest --config apps/notification-service/test/jest-e2e.json'"
   }
 }

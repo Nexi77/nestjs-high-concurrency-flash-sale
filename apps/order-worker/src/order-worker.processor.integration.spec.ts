@@ -3,6 +3,7 @@ import { OrderEntity } from '@db/database';
 import { randomUUID } from 'node:crypto';
 import { Queue } from 'bullmq';
 import { DataSource, Repository } from 'typeorm';
+import { OrderEventsBusService, OrderStatusService } from '@redis/redis';
 import { OrderProcessor } from './order-worker.processor';
 
 describe('OrderProcessor integration', () => {
@@ -10,6 +11,10 @@ describe('OrderProcessor integration', () => {
   let orderRepository: Repository<OrderEntity>;
   let notificationQueue: jest.Mocked<
     Pick<Queue<OrderNotificationJobData>, 'add'>
+  >;
+  let orderStatusService: jest.Mocked<Pick<OrderStatusService, 'clearPending'>>;
+  let orderEventsBusService: jest.Mocked<
+    Pick<OrderEventsBusService, 'publishStatusUpdated'>
   >;
   let processor: OrderProcessor;
 
@@ -36,9 +41,19 @@ describe('OrderProcessor integration', () => {
       add: jest.fn().mockResolvedValue(undefined),
     };
 
+    orderStatusService = {
+      clearPending: jest.fn().mockResolvedValue(undefined),
+    };
+
+    orderEventsBusService = {
+      publishStatusUpdated: jest.fn().mockResolvedValue(undefined),
+    };
+
     processor = new OrderProcessor(
       orderRepository,
       notificationQueue as unknown as Queue<OrderNotificationJobData>,
+      orderStatusService as unknown as OrderStatusService,
+      orderEventsBusService as unknown as OrderEventsBusService,
     );
   });
 

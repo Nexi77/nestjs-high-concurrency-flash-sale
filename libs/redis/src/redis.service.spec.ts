@@ -15,7 +15,7 @@ jest.mock('ioredis', () => ({
 }));
 
 describe('RedisService', () => {
-  let configService: jest.Mocked<Pick<ConfigService, 'get'>>;
+  let configService: Pick<ConfigService, 'get'>;
   let service: RedisService;
 
   beforeEach(() => {
@@ -40,7 +40,7 @@ describe('RedisService', () => {
       }),
     };
 
-    service = new RedisService(configService as ConfigService);
+    service = new RedisService(configService as unknown as ConfigService);
     service.onModuleInit();
   });
 

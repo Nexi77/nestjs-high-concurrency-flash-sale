@@ -87,6 +87,11 @@ a {
   color: rgba(31, 41, 55, 0.78);
 }
 
+.order-status-stream__meta {
+  font-size: 0.85rem;
+  color: rgba(31, 41, 55, 0.6);
+}
+
 .checkout-form__fields {
   display: grid;
   gap: 1rem;

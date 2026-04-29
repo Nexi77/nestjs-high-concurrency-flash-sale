@@ -23,3 +23,8 @@ export interface GetOrderStatusResponse {
   orderId: string;
   status: OrderStatus;
 }
+
+export interface OrderStatusUpdatedEvent {
+  orderId: string;
+  status: OrderStatus;
+}

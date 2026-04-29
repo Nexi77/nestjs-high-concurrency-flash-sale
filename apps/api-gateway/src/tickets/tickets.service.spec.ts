@@ -1,7 +1,7 @@
 import { OrderJobData } from '@lib/common';
 import { BadRequestException } from '@nestjs/common';
 import { Queue } from 'bullmq';
-import { RedisService } from '@redis/redis';
+import { OrderStatusService, RedisService } from '@redis/redis';
 import { TicketsService } from './tickets.service';
 
 describe('TicketsService', () => {
@@ -10,6 +10,9 @@ describe('TicketsService', () => {
       RedisService,
       'tryBuyTicket' | 'releaseTicketReservation' | 'getClient'
     >
+  >;
+  let orderStatusService: jest.Mocked<
+    Pick<OrderStatusService, 'markPending' | 'clearPending'>
   >;
   let orderQueue: jest.Mocked<Pick<Queue<OrderJobData>, 'add'>>;
   let service: TicketsService;
@@ -25,14 +28,21 @@ describe('TicketsService', () => {
       add: jest.fn(),
     };
 
+    orderStatusService = {
+      markPending: jest.fn(),
+      clearPending: jest.fn(),
+    };
+
     service = new TicketsService(
       redisService as unknown as RedisService,
+      orderStatusService as unknown as OrderStatusService,
       orderQueue as unknown as Queue<OrderJobData>,
     );
   });
 
   it('returns pending and enqueues order after successful reservation', async () => {
     redisService.tryBuyTicket.mockResolvedValue(1);
+    orderStatusService.markPending.mockResolvedValue();
     orderQueue.add.mockResolvedValue({} as never);
 
     const result = await service.buyTicket('ticket-1', 'customer@example.com');
@@ -41,20 +51,28 @@ describe('TicketsService', () => {
       'ticket-1',
       'customer@example.com',
     );
+    expect(orderStatusService.markPending).toHaveBeenCalledWith(
+      expect.any(String),
+    );
     expect(orderQueue.add).toHaveBeenCalledWith(
       'create_order',
-      expect.objectContaining({
-        orderId: expect.any(String),
-        ticketId: 'ticket-1',
-        customerEmail: 'customer@example.com',
-      }),
+      expect.any(Object),
       expect.objectContaining({
         removeOnComplete: true,
         removeOnFail: false,
         attempts: 3,
       }),
     );
-    const [[, queuedJob]] = orderQueue.add.mock.calls;
+    const addCalls = orderQueue.add.mock.calls as [
+      string,
+      OrderJobData,
+      unknown,
+    ][];
+    const [, queuedJob] = addCalls[0];
+
+    expect(queuedJob.ticketId).toBe('ticket-1');
+    expect(queuedJob.customerEmail).toBe('customer@example.com');
+    expect(queuedJob.orderId).toEqual(expect.any(String));
 
     expect(result).toEqual({
       orderId: queuedJob.orderId,
@@ -90,6 +108,8 @@ describe('TicketsService', () => {
   it('releases the reservation when queueing the order fails', async () => {
     redisService.tryBuyTicket.mockResolvedValue(1);
     redisService.releaseTicketReservation.mockResolvedValue();
+    orderStatusService.markPending.mockResolvedValue();
+    orderStatusService.clearPending.mockResolvedValue();
     orderQueue.add.mockRejectedValue(new Error('queue unavailable'));
 
     await expect(
@@ -99,6 +119,9 @@ describe('TicketsService', () => {
     expect(redisService.releaseTicketReservation).toHaveBeenCalledWith(
       'ticket-1',
       'customer@example.com',
+    );
+    expect(orderStatusService.clearPending).toHaveBeenCalledWith(
+      expect.any(String),
     );
   });
 });

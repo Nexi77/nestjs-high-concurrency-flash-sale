@@ -13,12 +13,15 @@ describe('TicketsController', () => {
       buyTicket: jest.fn(),
     };
 
-    controller = new TicketsController(ticketsService as TicketsService);
+    controller = new TicketsController(
+      ticketsService as unknown as TicketsService,
+    );
     validationPipe = new ValidationPipe({ whitelist: true, transform: true });
   });
 
   it('normalizes customerEmail before passing it to the service', async () => {
     ticketsService.buyTicket.mockResolvedValue({
+      orderId: '3c87ed37-44cf-4f5a-9b2f-d40793f53747',
       status: 'pending',
       message: 'Ticket reserved. Order is being processed.',
     });

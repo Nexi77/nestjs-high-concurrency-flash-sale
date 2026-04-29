@@ -2,6 +2,7 @@ import { OrderNotificationJobData } from '@lib/common';
 import { Queue } from 'bullmq';
 import { Repository } from 'typeorm';
 import { OrderEntity } from '@db/database';
+import { OrderEventsBusService, OrderStatusService } from '@redis/redis';
 import { OrderProcessor } from './order-worker.processor';
 
 describe('OrderProcessor', () => {
@@ -14,6 +15,10 @@ describe('OrderProcessor', () => {
   };
   let notificationQueue: jest.Mocked<
     Pick<Queue<OrderNotificationJobData>, 'add'>
+  >;
+  let orderStatusService: jest.Mocked<Pick<OrderStatusService, 'clearPending'>>;
+  let orderEventsBusService: jest.Mocked<
+    Pick<OrderEventsBusService, 'publishStatusUpdated'>
   >;
   let processor: OrderProcessor;
 
@@ -30,9 +35,19 @@ describe('OrderProcessor', () => {
       add: jest.fn(),
     };
 
+    orderStatusService = {
+      clearPending: jest.fn(),
+    };
+
+    orderEventsBusService = {
+      publishStatusUpdated: jest.fn(),
+    };
+
     processor = new OrderProcessor(
       orderRepository as unknown as Repository<OrderEntity>,
       notificationQueue as unknown as Queue<OrderNotificationJobData>,
+      orderStatusService as unknown as OrderStatusService,
+      orderEventsBusService as unknown as OrderEventsBusService,
     );
   });
 
