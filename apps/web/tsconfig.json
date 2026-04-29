@@ -20,7 +20,7 @@
     ],
     "paths": {
       "@/*": ["./*"],
-      "@flash-sale/common": ["../../libs/common/src/index.ts"]
+      "@flash-sale/common": ["../../libs/common/src/contracts.ts"]
     }
   },
   "include": [

@@ -36,3 +36,105 @@ a {
 .app-shell {
   min-height: 100vh;
 }
+
+.checkout-page,
+.order-page {
+  min-height: 100vh;
+  padding: 4rem 1.5rem;
+}
+
+.checkout-form,
+.order-status-stream {
+  width: min(100%, 40rem);
+  margin: 0 auto;
+  padding: 2rem;
+  border: 1px solid rgba(31, 41, 55, 0.12);
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: 0 24px 60px rgba(31, 41, 55, 0.08);
+}
+
+.checkout-form {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.checkout-form__intro,
+.order-status-stream {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.checkout-form__eyebrow,
+.order-status-stream__eyebrow {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(31, 41, 55, 0.7);
+}
+
+.checkout-form__title,
+.order-status-stream__title {
+  font-size: clamp(2rem, 4vw, 3.25rem);
+  line-height: 0.95;
+}
+
+.checkout-form__description,
+.order-status-stream__description {
+  max-width: 34rem;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: rgba(31, 41, 55, 0.78);
+}
+
+.checkout-form__fields {
+  display: grid;
+  gap: 1rem;
+}
+
+.checkout-form__field {
+  display: grid;
+  gap: 0.5rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.checkout-form__input {
+  width: 100%;
+  padding: 0.9rem 1rem;
+  border: 1px solid rgba(31, 41, 55, 0.16);
+  background: rgba(255, 255, 255, 0.92);
+  color: inherit;
+  font: inherit;
+}
+
+.checkout-form__input::placeholder {
+  color: rgba(31, 41, 55, 0.4);
+}
+
+.checkout-form__input:focus {
+  outline: 2px solid rgba(31, 41, 55, 0.25);
+  outline-offset: 2px;
+}
+
+.checkout-form__error {
+  color: #8a1c1c;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.checkout-form__submit {
+  justify-self: start;
+  padding: 0.95rem 1.4rem;
+  border: 0;
+  background: #1f2937;
+  color: #f5f1e8;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.checkout-form__submit:disabled {
+  cursor: wait;
+  opacity: 0.72;
+}

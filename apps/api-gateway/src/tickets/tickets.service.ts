@@ -1,7 +1,7 @@
 import { BuyTicketResponse, OrderJobData } from '@lib/common';
 import { InjectQueue } from '@nestjs/bullmq';
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { RedisService } from '@redis/redis';
+import { OrderStatusService, RedisService } from '@redis/redis';
 import { Queue } from 'bullmq';
 import { randomUUID } from 'node:crypto';
 
@@ -9,6 +9,7 @@ import { randomUUID } from 'node:crypto';
 export class TicketsService {
   constructor(
     private readonly redisService: RedisService,
+    private readonly orderStatusService: OrderStatusService,
     @InjectQueue('order-queue')
     private readonly orderQueue: Queue<OrderJobData>,
   ) {}
@@ -41,6 +42,8 @@ export class TicketsService {
     if (result === 0) throw new BadRequestException('Tickets are sold out');
 
     try {
+      await this.orderStatusService.markPending(orderId);
+
       await this.orderQueue.add(
         'create_order',
         { orderId, ticketId, customerEmail },
@@ -56,6 +59,7 @@ export class TicketsService {
       );
     } catch (error) {
       await this.redisService.releaseTicketReservation(ticketId, customerEmail);
+      await this.orderStatusService.clearPending(orderId);
       throw error;
     }
 

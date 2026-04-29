@@ -11,8 +11,15 @@ export interface OrderNotificationJobData {
   timestamp: string;
 }
 
+export type OrderStatus = 'pending' | 'completed';
+
 export interface BuyTicketResponse {
   orderId: string;
   status: 'pending';
   message: string;
+}
+
+export interface GetOrderStatusResponse {
+  orderId: string;
+  status: OrderStatus;
 }

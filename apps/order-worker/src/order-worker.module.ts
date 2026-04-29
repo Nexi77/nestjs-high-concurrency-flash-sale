@@ -3,6 +3,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { OrderProcessor } from './order-worker.processor';
 import { DatabaseModule } from '@db/database';
+import { RedisModule } from '@redis/redis';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { DatabaseModule } from '@db/database';
       name: 'notification-queue',
     }),
     DatabaseModule,
+    RedisModule,
   ],
   controllers: [],
   providers: [OrderProcessor],

@@ -2,6 +2,8 @@ import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Redis from 'ioredis';
 
+const ORDER_STATUS_PREFIX = 'order-status';
+
 type RedisWithCommands = Redis & {
   buyTicket(
     stockKey: string,
@@ -110,5 +112,31 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
       buyersKey,
       customerEmail,
     );
+  }
+
+  async setPendingOrderStatus(orderId: string): Promise<void> {
+    await this.client.set(
+      this.getOrderStatusKey(orderId),
+      'pending',
+      'EX',
+      this.getPendingOrderTtlSeconds(),
+    );
+  }
+
+  async deletePendingOrderStatus(orderId: string): Promise<void> {
+    await this.client.del(this.getOrderStatusKey(orderId));
+  }
+
+  async hasPendingOrderStatus(orderId: string): Promise<boolean> {
+    const status = await this.client.get(this.getOrderStatusKey(orderId));
+    return status === 'pending';
+  }
+
+  private getOrderStatusKey(orderId: string): string {
+    return `${ORDER_STATUS_PREFIX}:${orderId}`;
+  }
+
+  private getPendingOrderTtlSeconds(): number {
+    return this.configService.get('ORDER_PENDING_TTL_SECONDS', 900);
   }
 }
