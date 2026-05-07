@@ -114,6 +114,25 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     );
   }
 
+  async getTicketStock(ticketId: string): Promise<number | null> {
+    const stockValue = await this.client.get(`stock:${ticketId}`);
+
+    if (stockValue === null) {
+      return null;
+    }
+
+    return Number(stockValue);
+  }
+
+  async ensureTicketStock(ticketId: string, count: number): Promise<void> {
+    const stockKey = `stock:${ticketId}`;
+    const exists = await this.client.exists(stockKey);
+
+    if (exists === 0) {
+      await this.client.set(stockKey, count);
+    }
+  }
+
   async setPendingOrderStatus(orderId: string): Promise<void> {
     await this.client.set(
       this.getOrderStatusKey(orderId),

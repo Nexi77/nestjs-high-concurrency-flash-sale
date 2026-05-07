@@ -33,6 +33,7 @@ A high-concurrency PoC for handling 10k+ RPS during ticket sales.
 
 - [Architecture Decisions (ADR)](./docs/adr/)
 - [System Diagram (C4)](./docs/architecture/flash-sale-c4-container.mmd)
+- [Architect Narrative](./docs/architecture/flash-sale-architect-narrative.md)
 
 ## 🛠 Tech Stack (Confirmed)
 

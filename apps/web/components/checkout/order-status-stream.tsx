@@ -146,11 +146,20 @@ export default function OrderStatusStream({
 
   return (
     <div className="order-status-stream">
-      <p className="order-status-stream__eyebrow">Order tracking</p>
-      <h1 className="order-status-stream__title">Order {orderId}</h1>
+      <div className="order-status-stream__header">
+        <p className="order-status-stream__eyebrow">Order tracking</p>
+        <h1 className="order-status-stream__title">Order {orderId}</h1>
+        <span className="status-pill" data-status={status}>
+          {status}
+        </span>
+      </div>
+
       <p className="order-status-stream__description">
-        Current status: <strong>{status}</strong>.
+        {status === 'pending'
+          ? 'Your reservation has been accepted and is waiting for the asynchronous persistence layer to complete.'
+          : 'Your reservation is now persisted and the order flow has reached its terminal state.'}
       </p>
+
       <p className="order-status-stream__description">
         {connectionState === 'listening'
           ? 'Listening for live status updates from the server.'
@@ -168,11 +177,23 @@ export default function OrderStatusStream({
           ? 'Live tracking was interrupted. Refresh to reconcile the latest status.'
           : null}
       </p>
-      {lastHeartbeatAt ? (
-        <p className="order-status-stream__meta">
-          Last heartbeat: {new Date(lastHeartbeatAt).toLocaleTimeString()}
-        </p>
-      ) : null}
+
+      <div className="order-status-stream__meta">
+        <span className="order-status-stream__meta-item">
+          <strong>Order ID</strong>
+          <span>{orderId}</span>
+        </span>
+        <span className="order-status-stream__meta-item">
+          <strong>Stream</strong>
+          <span>{connectionState}</span>
+        </span>
+        {lastHeartbeatAt ? (
+          <span className="order-status-stream__meta-item">
+            <strong>Last heartbeat</strong>
+            <span>{new Date(lastHeartbeatAt).toLocaleTimeString()}</span>
+          </span>
+        ) : null}
+      </div>
     </div>
   );
 }

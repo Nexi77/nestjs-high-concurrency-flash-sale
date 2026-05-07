@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Flash Sale - Checkout',
-  description: 'Flash sale frontend application - checkout section',
+  title: 'Checkout',
+  description: 'Transactional guest checkout and live order tracking flow.',
 };
 
 export default function CheckoutLayout({
@@ -10,5 +10,5 @@ export default function CheckoutLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return <section>{children}</section>;
+  return <section className="checkout-layout">{children}</section>;
 }

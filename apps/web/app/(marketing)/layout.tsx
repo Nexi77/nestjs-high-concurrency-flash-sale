@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Flash Sale - Marketing',
-  description: 'Flash sale frontend application - marketing section',
+  title: 'Event',
+  description: 'Public event landing page for the Flash Sale Lab checkout flow.',
 };
 
 export default function MarketingLayout({
@@ -10,5 +10,5 @@ export default function MarketingLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return <section>{children}</section>;
+  return <section className="marketing-layout">{children}</section>;
 }

@@ -6,12 +6,14 @@ import { BullModule } from '@nestjs/bullmq';
 import { BullBoardModule } from '@bull-board/nestjs';
 import { ExpressAdapter } from '@bull-board/express';
 import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
+import { EventsModule } from './events/events.module';
 import { OrdersModule } from './orders/orders.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     TicketsModule,
+    EventsModule,
     OrdersModule,
     BullModule.forRootAsync({
       imports: [ConfigModule],

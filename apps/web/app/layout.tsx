@@ -2,8 +2,12 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'Flash Sale',
-  description: 'Flash sale frontend application',
+  title: {
+    default: 'Flash Sale Lab',
+    template: '%s | Flash Sale Lab',
+  },
+  description:
+    'High-concurrency ticket reservation frontend built with Next.js, guest checkout, and live order status updates over SSE.',
 };
 
 export default function RootLayout({
